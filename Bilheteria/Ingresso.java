@@ -15,7 +15,7 @@ public class Ingresso {
         double precoBase = 30.0;
 
         if (idadeCliente < 5) {
-            tipoAplicado = 0; // gratuito
+            tipoAplicado = 0;
             preco = 0.0;
         } else if ((idadeCliente < 18 || idadeCliente >= 60) && tipoEscolhido != 3) {
             tipoAplicado = 3; // meia-entrada forçada
@@ -43,4 +43,3 @@ public class Ingresso {
     public double getPreco() { return preco; }
     public int getIdadeCliente() { return idadeCliente; }
 }
-
