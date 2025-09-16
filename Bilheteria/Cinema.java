@@ -8,10 +8,6 @@ public class Cinema {
 
     public static void main(String[] args) {
         while (true) {
-            int qtdIngressos;
-            int idadeCliente;
-            int tipoIngresso;
-
             System.out.println("Bem vindo(a) ao Cinema!");
             System.out.println("""
                     *** INGRESSOS ***
@@ -22,35 +18,47 @@ public class Cinema {
                     * MEIA-ENTRADA APENAS PARA MENORES DE 18 ANOS OU MAIORES DE 60 ANOS *
                     """);
 
-            System.out.println("Quantos ingressos?: ");
-            qtdIngressos = input.nextInt();
+            System.out.print("Quantos ingressos deseja comprar?: ");
+            int qtdIngressos = input.nextInt();
 
-            System.out.println("Qual sua idade?: ");
-            do {
-                idadeCliente = input.nextInt();
-                if (idadeCliente < 0 || idadeCliente > 120) {
-                    System.out.println("Idade inválida!");
-                }
+            Venda venda = new Venda(); // agora a venda vai ter vários ingressos
+
+            for (int i = 1; i <= qtdIngressos; i++) {
+                System.out.printf("Ingresso %d - Qual a idade do cliente?: ", i);
+                int idadeCliente;
+                do {
+                    idadeCliente = input.nextInt();
+                    if (idadeCliente < 0 || idadeCliente > 120) {
+                        System.out.println("Idade inválida! Digite novamente:");
+                    }
+                } while (idadeCliente < 0 || idadeCliente > 120);
+
+                System.out.println("""
+                        Qual o tipo do ingresso? 
+                        1 - INTEIRO 
+                        2 - PROMOCIONAL 
+                        3 - MEIA-ENTRADA
+                        """);
+                int tipoIngresso = input.nextInt();
+
+                // cria ingresso e adiciona na venda
+                Ingresso ingresso = new Ingresso(idadeCliente, tipoIngresso);
+                ingresso.calcularPreco();
+                venda.adicionarIngresso(ingresso);
             }
-            while (idadeCliente < 0 || idadeCliente > 120);
 
-            System.out.println("Qual o tipo dos ingressos?: ");
-            tipoIngresso = input.nextInt();
-
-            Venda venda = new Venda(qtdIngressos, idadeCliente, tipoIngresso);
-            venda.calcularValorTotal();
-
-            String[] ingressos = {"GRATUITO", "INTEIRO", "PROMOCIONAL", "MEIA-ENTRADA"};
-            String ingressoAplicado = ingressos[venda.getTipoIngressoAplicado()];
-
-            System.out.println("Ingresso aplicado: " + ingressoAplicado);
-            System.out.println("Quantidade de ingressos: " + venda.getQuantidadeIngressos());
+            System.out.println("Resumo da compra:");
+            for (Ingresso ingresso : venda.getIngressos()) {
+                String[] ingressosLabel = {"GRATUITO", "INTEIRO", "PROMOCIONAL", "MEIA-ENTRADA"};
+                System.out.printf(" - %s (Idade: %d) -> R$ %.2f%n",
+                        ingressosLabel[ingresso.getTipoAplicado()],
+                        ingresso.getIdadeCliente(),
+                        ingresso.getPreco());
+            }
             System.out.println("Valor total: R$ " + venda.getValorTotal());
 
-            if (ingressos[venda.getTipoIngressoAplicado()].equals("GRATUITO")) {
-                System.out.println("Obrigado pela preferência! Aproveite o filme!");
-            }
-            else {
+            // Pagamento
+            if (venda.getValorTotal() > 0) {
                 int metodoPagamento;
                 System.out.print("""
                         Qual o método de pagamento?:
@@ -71,9 +79,19 @@ public class Cinema {
                         System.out.println("Método inválido.");
                     }
                 } while (metodoPagamento != 1 && metodoPagamento != 2);
+            } else {
+                System.out.println("Ingressos gratuitos! Aproveite o filme!");
             }
 
-            bilheteria.salvarInfoCliente(ingressoAplicado, qtdIngressos, venda.getValorTotal());
+            // Atualiza bilheteria ingresso por ingresso
+            for (Ingresso ingresso : venda.getIngressos()) {
+                String[] ingressosLabel = {"GRATUITO", "INTEIRO", "PROMOCIONAL", "MEIA-ENTRADA"};
+                bilheteria.salvarInfoCliente(
+                        ingressosLabel[ingresso.getTipoAplicado()],
+                        1,
+                        ingresso.getPreco()
+                );
+            }
 
             System.out.println("Atender próximo cliente? (S/N)");
             char resposta = input.next().toUpperCase().charAt(0);
