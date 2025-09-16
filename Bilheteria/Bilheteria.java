@@ -1,24 +1,47 @@
 package Bilheteria;
 
-import java.util.Scanner;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Bilheteria {
-      int totalIngressosVendidos;
-    double totalValorArrecadado;
-    int totalInteiras;
-    int totalMeias;
-    int totalPromocionais;
-    int totalGratuitos;
-    private Scanner scanner;
+    private int totalIngressos;
+    private final Map<String, Integer> qtdIngressosPorTipo = new HashMap<>();
+    private double valorDia;
 
-    public Bilheteria() {
-        this.totalIngressosVendidos = 0;
-        this.totalValorArrecadado = 0.0;
-        this.totalInteiras = 0;
-        this.totalMeias = 0;
-        this.totalPromocionais = 0;
-        this.totalGratuitos = 0;
-        this.scanner = new Scanner(System.in);
+    public void salvarInfoCliente(String ingressoAplicado, int qtdIngressos, double valorArrecadado) {
+        totalIngressos += qtdIngressos;
+
+        if (qtdIngressosPorTipo.containsKey(ingressoAplicado)) {
+            int qtdIngressosAtual = qtdIngressosPorTipo.get(ingressoAplicado);
+            int novoQtdIngressos = qtdIngressos + qtdIngressosAtual;
+            qtdIngressosPorTipo.put(ingressoAplicado, novoQtdIngressos);
+        } else {
+            qtdIngressosPorTipo.put(ingressoAplicado, qtdIngressos);
+        }
+
+        if (!ingressoAplicado.equals("GRATUITO")) {
+            valorDia += valorArrecadado;
+        }
     }
-    
+
+    public String exibirRelatorio() {
+        return String.format("""
+                * RELATÓRIO DIÁRIO *
+                
+                TOTAL DE INGRESSOS VENDIDOS: %d
+                
+                QUANTIDADE DE INGRESSOS (POR TIPO):
+                    - INTEIRO      -> %d
+                    - PROMOCIONAL  -> %d
+                    - MEIA-ENTRADA -> %d
+                    - GRATUITO     -> %d
+                
+                VALOR ARRECADADO: R$ %.2f
+                """, totalIngressos,
+                qtdIngressosPorTipo.getOrDefault("INTEIRO", 0),
+                qtdIngressosPorTipo.getOrDefault("PROMOCIONAL", 0),
+                qtdIngressosPorTipo.getOrDefault("MEIA-ENTRADA", 0),
+                qtdIngressosPorTipo.getOrDefault("GRATUITO", 0),
+                valorDia);
+    }
 }
